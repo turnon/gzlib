@@ -9,7 +9,7 @@ class Search
     @para = {q: escape(key), page: 1}
     doc = getHTML
     @books = getBooks(doc)
-    @pages = doc.at_css(".meneame .disabled").text.gsub(/[^\d]/,'').to_i
+    @pages = (@books.empty? ? 1 : getPages(doc))
   end
 
   def [](i)
@@ -56,6 +56,10 @@ class Search
     doc.css(".bookmeta").map do |node|
       Book.new(node)
     end.to_a
+  end
+
+  def getPages(doc)
+    doc.at_css(".meneame .disabled").text.gsub(/[^\d]/,'').to_i
   end
 
   def nextPage
