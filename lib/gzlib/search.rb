@@ -1,7 +1,7 @@
 class Search
   Search = 'http://opac.gzlib.gov.cn/opac/search?hasholding=1&searchWay=title&'
  
-  attr_reader :books, :pages
+  attr_reader :pages
 
   include Enumerable
 
@@ -10,6 +10,10 @@ class Search
     doc = getHTML
     @books = getBooks(doc)
     @pages = doc.at_css(".meneame .disabled").text.gsub(/[^\d]/,'').to_i
+  end
+
+  def [](i)
+    @books[i]
   end
 
   def each(&b)
