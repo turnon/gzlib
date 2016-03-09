@@ -1,6 +1,5 @@
 #!/usr/bin/env ruby
 
 require 'gzlib'
-require 'pp'
 
-pp Gzlib.search ARGV.shift.dup
+puts Gzlib.list ARGV.shift.dup
