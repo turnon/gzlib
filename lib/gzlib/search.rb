@@ -1,6 +1,6 @@
 class Search
   Search = 'http://opac.gzlib.gov.cn/opac/search?hasholding=1&'
-  Para = {page: 1, searchWay: 'title', sortWay: 'title200Weight'}
+  Para = {page: 1, searchWay: 'title', sortWay: 'title200Weight', rows: 100}
 
   attr_reader :pages
 

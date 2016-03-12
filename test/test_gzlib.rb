@@ -4,7 +4,7 @@ require 'gzlib'
 class TestGzlib < Minitest::Test
 
   def setup
-    @ruby = Gzlib.search 'ruby'
+    @ruby = Gzlib.search 'ruby', rows: 10
     @score_ruby = Gzlib.search 'ruby', sortWay: 'score'
   end
 
