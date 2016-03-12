@@ -8,12 +8,12 @@ require "gzlib/book"
 
 module Gzlib
   class << self
-    def search(key)
-      Search.new(key)
+    def search(*para)
+      Search.new(*para)
     end
 
-    def list(key)
-      Style[search key]
+    def list(*para)
+      Style[search *para]
     end
   end
 

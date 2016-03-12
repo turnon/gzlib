@@ -5,10 +5,11 @@ class TestGzlib < Minitest::Test
 
   def setup
     @ruby = Gzlib.search 'ruby'
+    @score_ruby = Gzlib.search 'ruby', sortWay: 'score'
   end
 
   def test_has_ruby_book
-    assert_match /^ruby/i, @ruby.first.title
+    assert_match /^ruby/i, @score_ruby.first.title
   end
 
   def test_ruby_has_10_pages_more_result

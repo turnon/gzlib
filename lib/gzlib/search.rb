@@ -1,12 +1,13 @@
 class Search
-  Search = 'http://opac.gzlib.gov.cn/opac/search?hasholding=1&searchWay=title&'
- 
+  Search = 'http://opac.gzlib.gov.cn/opac/search?hasholding=1&'
+  Para = {page: 1, searchWay: 'title', sortWay: 'title200Weight'}
+
   attr_reader :pages
 
   include Enumerable
 
-  def initialize(key)
-    @para = {q: escape(key), page: 1}
+  def initialize(key, opt={})
+    @para = Para.merge({q: escape(key)}).merge opt
     doc = getHTML
     @books = getBooks(doc)
     @pages = (@books.empty? ? 1 : getPages(doc))
