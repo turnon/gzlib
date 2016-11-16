@@ -1,70 +1,85 @@
-class Search
-  Search = 'http://opac.gzlib.gov.cn/opac/search?hasholding=1&'
-  Para = {page: 1, searchWay: 'title', sortWay: 'title200Weight', rows: 100}
+require 'webrick/httputils'
+require 'nokogiri'
+require 'open-uri'
+require 'gzlib/book'
 
-  attr_reader :pages
+module Gzlib
+  class Search
+    Search = 'http://opac.gzlib.gov.cn/opac/search?hasholding=1&'
+    Para = {page: 1, searchWay: 'title', sortWay: 'title200Weight', rows: 100, curlibcode: 'GT'}
+    AcceptableSearchWay = [:title, :marc, :isbn, :author, :subject, :class, :publish, :callno]
 
-  include Enumerable
+    attr_reader :pages
 
-  def initialize(key, opt={})
-    @para = Para.merge({q: escape(key)}).merge opt
-    doc = getHTML
-    @books = getBooks(doc)
-    @pages = (@books.empty? ? 1 : getPages(doc))
-  end
+    include Enumerable
 
-  def [](i)
-    @books[i]
-  end
-
-  def each(&b)
-    @books.each &b
-    while not lastPage?
-      nextPage
-      books = getBooks(getHTML)
-      @books.concat books
-      books.each &b
+    class << self
+      def method_missing search_way, *keywords, &blk
+        return new(keywords.join(' '), searchWay: search_way) if AcceptableSearchWay.include? search_way
+        super
+      end
     end
+
+    def initialize(key, opt={})
+      @para = Para.merge({q: escape(key)}).merge opt
+      doc = getHtml
+      @books = getBooks(doc)
+      @pages = (@books.empty? ? 1 : getPages(doc))
+    end
+
+    def [](i)
+      @books[i]
+    end
+
+    def each(&b)
+      @books.each &b
+      while not lastPage?
+        nextPage
+        books = getBooks(getHtml)
+        @books.concat books
+        books.each &b
+      end
+    end
+
+    def total
+      reduce(0){ |sum, book| sum + 1 }
+    end
+
+    def curPage
+      @para[:page]
+    end
+
+    def lastPage?
+      curPage == pages
+    end
+
+    private
+
+    def getHtml
+      Nokogiri::HTML(open "#{Search}#{para}")
+    end
+
+    def escape(str)
+      WEBrick::HTTPUtils.escape str.force_encoding('utf-8')
+    end
+
+    def para
+      @para.map{ |k,v| "#{k}=#{v}" }.join('&')
+    end
+
+    def getBooks(doc)
+      doc.css(".bookmeta").map do |node|
+        Gzlib::Book.new(node)
+      end.to_a
+    end
+
+    def getPages(doc)
+      doc.at_css(".meneame .disabled").text.gsub(/[^\d]/,'').to_i
+    end
+
+    def nextPage
+      @para.merge!({page: curPage+1})
+    end
+
   end
-
-  def total
-    reduce(0){|sum, book| sum + 1}
-  end
-
-  def curPage
-    @para[:page]
-  end
-
-  def lastPage?
-    curPage == pages
-  end
-
-  private
-
-  def getHTML
-    Nokogiri::HTML(open "#{Search}#{para}")
-  end
-
-  def escape(str)
-    WEBrick::HTTPUtils.escape str.force_encoding('utf-8')
-  end
-
-  def para
-    @para.map{|k,v| "#{k}=#{v}"}.join('&')
-  end
-
-  def getBooks(doc)
-    doc.css(".bookmeta").map do |node|
-      Book.new(node)
-    end.to_a
-  end
-
-  def getPages(doc)
-    doc.at_css(".meneame .disabled").text.gsub(/[^\d]/,'').to_i
-  end
-
-  def nextPage
-    @para.merge!({page: curPage+1})
-  end
-
 end
