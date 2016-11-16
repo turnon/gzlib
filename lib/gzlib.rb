@@ -1,10 +1,5 @@
-require 'open-uri'
-require 'nokogiri'
-require 'webrick/httputils'
-require "gzlib/version"
-require "gzlib/search"
-require "gzlib/position"
-require "gzlib/book"
+require 'gzlib/version'
+require 'gzlib/search'
 
 module Gzlib
   class << self
@@ -13,29 +8,35 @@ module Gzlib
     end
 
     def list(*para)
-      Style[search *para]
+      style search(*para)
     end
-  end
 
-  Style = Proc.new do |search|
-    search.first(10).map do |book|
-      Book[book]
-    end.join "\n\n"
-  end
+    private
 
-  Book = Proc.new do |book|
-    "#{book.title} #{book.author}\n#{book.publisher} #{book.year}\n#{Poss[book.positions]}"
-  end
-
-  Poss = Proc.new do |poss|
-    if poss.empty?
-      "#{Ind}N/A\n"
-    else
-      poss.map do |pos|
-        "#{Ind}#{pos.callno} #{pos.curlibName} #{pos.curlocalName} #{pos.copycount}"
-      end.join "\n"
+    def style search
+      search.first(10).map do |book|
+        book_style book
+      end.join "\n\n"
     end
+
+    def book_style book
+      "#{book.title} #{book.author}\n#{book.publisher} #{book.year}\n#{position_style book.positions}"
+    end
+
+    def position_style poss
+      free = poss.
+        reject(&:loan?).
+        group_by(&:callno).
+        map{|callno, poss| [callno, "free x #{poss.count}"]}
+
+      loan = poss.
+        select(&:loan?).
+        sort_by(&:returnDate).
+        map{|pos| [pos.callno, pos.returnDate]}
+
+      (free + loan).map{|status| status.join(' ')}.join("\n")
+    end
+
   end
 
-  Ind = "    "
 end
