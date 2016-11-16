@@ -29,9 +29,15 @@ module Gzlib
     end
 
     def merge_holding_loan
+      libcodeMap = json['libcodeMap']
+      localMap = json['localMap']
+      loanWorkMap = json['loanWorkMap']
+
       @holdings = json['holdingList'].map do |hold|
         h = Gzlib::Holding.new hold
-        h.loan = json['loanWorkMap'][h.barcode]
+        h.libcodeMap = libcodeMap
+        h.localMap = localMap
+        h.loan = loanWorkMap[h.barcode]
         h
       end
     end

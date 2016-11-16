@@ -26,13 +26,13 @@ module Gzlib
     def position_style poss
       free = poss.
         reject(&:loan?).
-        group_by(&:callno).
-        map{|callno, poss| [callno, "free x #{poss.count}"]}
+        group_by(&:lib_callno).
+        map{|callno_lib, poss| [callno_lib, "free x #{poss.count}"]}
 
       loan = poss.
         select(&:loan?).
         sort_by(&:returnDate).
-        map{|pos| [pos.callno, pos.returnDate]}
+        map{|pos| [pos.lib_callno, pos.returnDate]}
 
       (free + loan).map{|status| status.join(' ')}.join("\n")
     end
