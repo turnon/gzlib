@@ -18,6 +18,12 @@ class TestGzlib < Minitest::Test
     assert_equal 1, matz_ruby.count
   end
 
+  def test_convenient_method_accept_options_not_just_keyword
+    ruby_books = Gzlib::Search.send :title, 'ruby', rows: 500
+    assert 100 < ruby_books.count
+    assert_equal 1, ruby_books.curPage
+  end
+
   def test_pages
     @ruby = Gzlib.search 'ruby', rows: 10
     has_10_pages_more_result

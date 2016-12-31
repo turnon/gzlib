@@ -15,7 +15,9 @@ module Gzlib
 
     class << self
       def method_missing search_way, *keywords, &blk
-        return new(keywords.join(' '), searchWay: search_way) if AcceptableSearchWay.include? search_way
+        opt = {searchWay: search_way}
+        opt.merge! keywords.pop if keywords[-1].is_a? Hash
+        return new(keywords.join(' '), opt) if AcceptableSearchWay.include? search_way
         super
       end
     end
