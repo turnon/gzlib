@@ -1,6 +1,6 @@
 require 'webrick/httputils'
 require 'nokogiri'
-require 'open-uri'
+require 'net/http'
 require 'gzlib/book'
 
 module Gzlib
@@ -58,7 +58,8 @@ module Gzlib
     private
 
     def getHtml
-      Nokogiri::HTML(open "#{Search}#{para}")
+      html = Net::HTTP.get(URI("#{Search}#{para}"))
+      Nokogiri::HTML(html)
     end
 
     def escape(str)
@@ -81,6 +82,10 @@ module Gzlib
 
     def nextPage
       @para.merge!({page: curPage+1})
+    end
+
+    def open(str)
+      Net::HTTP.get(URI(str))
     end
 
   end
