@@ -24,8 +24,8 @@ module Gzlib
     end
 
     def fetch_json id
-      json_file = open "#{Search}#{id}"
-      @json = JSON.parse json_file.read
+      json = Net::HTTP.get(URI("#{Search}#{id}"))
+      @json = JSON.parse json
     end
 
     def merge_holding_loan

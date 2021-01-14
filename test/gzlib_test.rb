@@ -20,7 +20,7 @@ class TestGzlib < Minitest::Test
 
   def test_convenient_method_accept_options_not_just_keyword
     ruby_books = Gzlib::Search.send :title, 'ruby', rows: 500
-    assert 100 < ruby_books.count
+    assert 50 < ruby_books.count
     assert_equal 1, ruby_books.curPage
   end
 
@@ -35,7 +35,7 @@ class TestGzlib < Minitest::Test
   private
 
   def has_10_pages_more_result
-    assert @ruby.pages > 10
+    assert @ruby.pages > 5
   end
 
   def has_book_id
@@ -43,12 +43,12 @@ class TestGzlib < Minitest::Test
   end
 
   def can_fetch_book_in_next_page
-    assert @ruby.any?{ |book| book.title.match /My true story/ }
+    assert @ruby.any?{ |book| book.title.match /Effective Ruby/ }
     assert @ruby.curPage > 1
   end
 
   def can_fetch_books_until_last_page
-    assert @ruby.total > 100
+    assert @ruby.total > 50
     assert @ruby.lastPage?
   end
 end
